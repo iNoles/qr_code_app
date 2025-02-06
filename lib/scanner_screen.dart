@@ -11,8 +11,36 @@ class ScannerScreen extends StatefulWidget {
 }
 
 class ScannerScreenState extends State<ScannerScreen> {
-  String scannedData = "Scan a QR code"; // Default text
+  String scannedData = "Scan a QR code";
   final Box<String> scannedCodesBox = Hive.box<String>('scannedCodes');
+
+  void _onDetect(BarcodeCapture barcodeCapture) {
+    String scannedCode = barcodeCapture.barcodes.first.rawValue ?? "Unknown";
+    if (scannedCode == "Unknown") {
+      return; // Don't proceed if no valid barcode is found
+    }
+
+    // Haptic feedback and Snackbar on successful scan
+    HapticFeedback.mediumImpact();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text("QR Code Scanned: $scannedCode"),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.secondary,
+      ),
+    );
+
+    setState(() {
+      scannedData = scannedCode;
+    });
+
+    // Store the scanned code in Hive
+    scannedCodesBox.add(scannedCode);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,32 +59,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: MobileScanner(
-                onDetect: (BarcodeCapture barcodeCapture) {
-                  String scannedCode =
-                      barcodeCapture.barcodes.first.rawValue ?? "Unknown";
-
-                  // Provide haptic feedback when a QR code is successfully scanned
-                  HapticFeedback.mediumImpact();
-
-                  // Show a SnackBar when a QR code is successfully scanned
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("QR Code Scanned: $scannedCode"),
-                      duration: const Duration(seconds: 2),
-                      behavior: SnackBarBehavior.floating,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      backgroundColor: Theme.of(context).colorScheme.secondary,
-                    ),
-                  );
-
-                  setState(() {
-                    scannedData = scannedCode;
-                    scannedCodesBox
-                        .add(scannedCode); // Store scanned data in Hive
-                  });
-                },
+                onDetect: _onDetect,
               ),
             ),
           ),
@@ -70,7 +73,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
+                    color: Colors.black.withOpacity(0.2),
                     blurRadius: 10,
                     spreadRadius: 1,
                     offset: const Offset(0, 2),
@@ -88,44 +91,56 @@ class ScannerScreenState extends State<ScannerScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () {
-              // Display stored codes
-              final storedCodes = scannedCodesBox.values.toList();
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: const Text('Scanned Codes'),
-                    content: SizedBox(
-                      height: 200,
-                      width: 300,
-                      child: ListView.builder(
-                        itemCount: storedCodes.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            title: Text(storedCodes[index]),
-                          );
-                        },
-                      ),
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Close'),
-                      ),
-                    ],
+          ValueListenableBuilder(
+            valueListenable: scannedCodesBox.listenable(),
+            builder: (context, Box<String> box, _) {
+              final storedCodes = box.values.toList();
+
+              return ElevatedButton(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Scanned Codes'),
+                        content: SizedBox(
+                          height: 200,
+                          width: 300,
+                          child: ListView.builder(
+                            itemCount: storedCodes.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(storedCodes[index]),
+                              );
+                            },
+                          ),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Close'),
+                          ),
+                        ],
+                      );
+                    },
                   );
                 },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: const [
+                    Icon(Icons.history),
+                    SizedBox(width: 8),
+                    Text('Show Scanned Codes'),
+                  ],
+                ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            child: const Text('Show Scanned Codes'),
           ),
           const SizedBox(height: 20),
         ],
