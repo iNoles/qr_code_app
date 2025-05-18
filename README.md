@@ -16,7 +16,7 @@ A simple QR Code Scanner app built with Flutter. It uses the **mobile_scanner** 
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/iNoles/qr_code_app.git
+    git clone https://github.com/iNoles/FlutterScan.git
     ```
 
 2. Navigate to the project directory:
