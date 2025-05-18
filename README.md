@@ -22,7 +22,7 @@ A simple QR Code Scanner app built with Flutter. It uses the **mobile_scanner** 
 2. Navigate to the project directory:
 
     ```bash
-    cd qr_code_app
+    cd FlutterScan
     ```
 
 3. Install dependencies:
