@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import 'package:hive/hive.dart';
 import 'package:flutter/services.dart'; // For haptic feedback
 
 class ScannerScreen extends StatefulWidget {
@@ -27,9 +27,7 @@ class ScannerScreenState extends State<ScannerScreen> {
         content: Text("QR Code Scanned: $scannedCode"),
         duration: const Duration(seconds: 2),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         backgroundColor: Theme.of(context).colorScheme.secondary,
       ),
     );
@@ -45,22 +43,19 @@ class ScannerScreenState extends State<ScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('QR Code Scanner'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('QR Code Scanner'), centerTitle: true),
       body: Column(
         children: [
           Expanded(
             child: Container(
               decoration: BoxDecoration(
                 border: Border.all(
-                    color: Theme.of(context).colorScheme.primary, width: 2),
+                  color: Theme.of(context).colorScheme.primary,
+                  width: 2,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: MobileScanner(
-                onDetect: _onDetect,
-              ),
+              child: MobileScanner(onDetect: _onDetect),
             ),
           ),
           const SizedBox(height: 20),
@@ -73,7 +68,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 10,
                     spreadRadius: 1,
                     offset: const Offset(0, 2),
@@ -82,10 +77,9 @@ class ScannerScreenState extends State<ScannerScreen> {
               ),
               child: Text(
                 scannedData,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge
-                    ?.copyWith(fontSize: 20),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontSize: 20),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -109,9 +103,7 @@ class ScannerScreenState extends State<ScannerScreen> {
                           child: ListView.builder(
                             itemCount: storedCodes.length,
                             itemBuilder: (context, index) {
-                              return ListTile(
-                                title: Text(storedCodes[index]),
-                              );
+                              return ListTile(title: Text(storedCodes[index]));
                             },
                           ),
                         ),
@@ -126,7 +118,10 @@ class ScannerScreenState extends State<ScannerScreen> {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 16,
+                    horizontal: 32,
+                  ),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
