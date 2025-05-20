@@ -56,6 +56,10 @@ A simple QR Code Scanner app built with Flutter. It uses the **mobile_scanner** 
 - The theme adapts automatically to the system's dark or light mode settings.
 - Both the light and dark themes use a seed color to generate the color palette for the app.
 
+## ScreenShots
+
+![App Screenshot](screenshots/main.png)
+
 ## Contributing
 
 1. Fork the repository.
